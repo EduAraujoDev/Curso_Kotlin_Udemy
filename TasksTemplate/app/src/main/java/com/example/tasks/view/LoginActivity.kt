@@ -60,8 +60,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             if (it.success()) {
                 startActivity(Intent(this, MainActivity::class.java))
             } else {
-                val message = it.falure()
-                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, it.falure(), Toast.LENGTH_SHORT).show()
             }
         })
 
