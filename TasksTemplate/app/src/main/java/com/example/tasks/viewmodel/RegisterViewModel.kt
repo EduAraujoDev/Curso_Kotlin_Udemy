@@ -22,7 +22,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
 
     fun create(name: String, email: String, password: String) {
         mPersonRepository.create(name, email, password, object : APIListener<HeaderModel> {
-            override fun onSuccess(model: TaskModel) {
+            override fun onSuccess(model: HeaderModel) {
                 mSharedPreference.store(TaskConstants.SHARED.TOKEN_KEY, model.token)
                 mSharedPreference.store(TaskConstants.SHARED.PERSON_KEY, model.personKey)
                 mSharedPreference.store(TaskConstants.SHARED.PERSON_NAME, model.name)
