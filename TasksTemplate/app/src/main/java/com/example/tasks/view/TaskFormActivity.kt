@@ -7,7 +7,6 @@ import android.widget.ArrayAdapter
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tasks.R
 import com.example.tasks.service.constants.TaskConstants
@@ -55,6 +54,8 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener, DatePickerDi
         if (bundle != null) {
             mTaskId = bundle.getInt(TaskConstants.BUNDLE.TASKID)
             mViewModel.load(mTaskId)
+
+            button_save.text = getString(R.string.update_task)
         }
     }
 
@@ -76,7 +77,7 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener, DatePickerDi
     }
 
     private fun observe() {
-        mViewModel.priorities.observe(this, Observer {
+        mViewModel.priorities.observe(this, {
             val list: MutableList<String> = arrayListOf()
 
             for (item in it) {
@@ -88,15 +89,21 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener, DatePickerDi
             spinner_priority.adapter = adapter
         })
 
-        mViewModel.validation.observe(this, Observer {
+        mViewModel.validation.observe(this, {
             if (it.success()) {
-                Toast.makeText(this, "Sucesso", Toast.LENGTH_SHORT).show()
+                if (mTaskId == 0) {
+                    toast(getString(R.string.task_created))
+                } else {
+                    toast(getString(R.string.task_updated))
+                }
+
+                finish()
             } else {
                 Toast.makeText(this, it.falure(), Toast.LENGTH_SHORT).show()
             }
         })
 
-        mViewModel.task.observe(this, Observer {
+        mViewModel.task.observe(this, {
             edit_description.setText(it.description)
             check_complete.isChecked = it.complete
             spinner_priority.setSelection(getIndex(it.priorityId))
@@ -104,6 +111,10 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener, DatePickerDi
             val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(it.dueDate)
             button_date.text = mDateFormat.format(date)
         })
+    }
+
+    private fun toast(str: String) {
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show()
     }
 
     private fun getIndex(priorityId: Int): Int {
