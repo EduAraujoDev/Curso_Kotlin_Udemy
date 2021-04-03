@@ -19,8 +19,6 @@ class AllTasksViewModel(application: Application) : AndroidViewModel(application
     private val mList = MutableLiveData<List<TaskModel>>()
     var tasks: LiveData<List<TaskModel>> = mList
 
-
-
     fun list() {
         mTaskRepository.all(object : APIListener<List<TaskModel>>{
             override fun onSuccess(model: List<TaskModel>) {
@@ -29,6 +27,7 @@ class AllTasksViewModel(application: Application) : AndroidViewModel(application
 
             override fun onFailure(str: String) {
                 mList.value = arrayListOf()
+                mValidation.value = ValidationListener(str)
             }
         })
     }
