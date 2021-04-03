@@ -19,7 +19,7 @@ class AllTasksViewModel(application: Application) : AndroidViewModel(application
 
     fun list() {
         mTaskRepository.all(object : APIListener<List<TaskModel>>{
-            override fun onSuccess(model: List<TaskModel>) {
+            override fun onSuccess(model: TaskModel) {
                 mList.value = model
             }
 

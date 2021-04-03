@@ -8,6 +8,7 @@ import com.example.tasks.service.model.HeaderModel
 import com.example.tasks.service.constants.TaskConstants
 import com.example.tasks.service.listener.APIListener
 import com.example.tasks.service.listener.ValidationListener
+import com.example.tasks.service.model.TaskModel
 import com.example.tasks.service.repository.PersonRepository
 import com.example.tasks.service.repository.PriorityRepository
 import com.example.tasks.service.repository.local.SecurityPreferences
@@ -30,7 +31,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun doLogin(email: String, password: String) {
         mPersonRepository.login(email, password, object : APIListener<HeaderModel> {
-            override fun onSuccess(model: HeaderModel) {
+            override fun onSuccess(model: TaskModel) {
                 mSharedPreference.store(TaskConstants.SHARED.TOKEN_KEY, model.token)
                 mSharedPreference.store(TaskConstants.SHARED.PERSON_KEY, model.personKey)
                 mSharedPreference.store(TaskConstants.SHARED.PERSON_NAME, model.name)
