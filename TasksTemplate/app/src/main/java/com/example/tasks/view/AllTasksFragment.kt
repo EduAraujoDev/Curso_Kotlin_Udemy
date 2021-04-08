@@ -72,7 +72,7 @@ class AllTasksFragment : Fragment() {
 
     private fun observe() {
         mViewModel.tasks.observe(viewLifecycleOwner, {
-            if (it.count() < 0) {
+            if (it.count() > 0) {
                 mAdapter.updateList(it)
             }
         })
