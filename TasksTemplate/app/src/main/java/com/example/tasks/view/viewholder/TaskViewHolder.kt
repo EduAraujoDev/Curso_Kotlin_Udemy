@@ -28,7 +28,7 @@ class TaskViewHolder(itemView: View, val listener: TaskListener) : RecyclerView.
      */
     fun bindData(task: TaskModel) {
         this.mTextDescription.text = task.description
-        this.mTextPriority.text = mPriorityRepository.getDescription(task.id)
+        this.mTextPriority.text = mPriorityRepository.getDescription(task.priorityId)
 
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(task.dueDate)
         this.mTextDueDate.text = mDateFormat.format(date)
