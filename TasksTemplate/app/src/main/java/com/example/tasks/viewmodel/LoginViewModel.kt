@@ -5,9 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.tasks.service.constants.TaskConstants
+import com.example.tasks.service.helper.FingerPrintHelper
 import com.example.tasks.service.listener.APIListener
 import com.example.tasks.service.listener.ValidationListener
 import com.example.tasks.service.model.HeaderModel
+import com.example.tasks.service.model.PriorityModel
 import com.example.tasks.service.repository.PersonRepository
 import com.example.tasks.service.repository.PriorityRepository
 import com.example.tasks.service.repository.local.SecurityPreferences
@@ -22,8 +24,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val mLogin = MutableLiveData<ValidationListener>()
     var login: LiveData<ValidationListener> = mLogin
 
-    private val mLoggedUser = MutableLiveData<Boolean>()
-    var loggedUser: LiveData<Boolean> = mLoggedUser
+    private val mFingerPrint = MutableLiveData<Boolean>()
+    var fingerPrint: LiveData<Boolean> = mFingerPrint
 
     /**
      * Faz login usando API
@@ -46,21 +48,27 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    /**
-     * Verifica se usuário está logado
-     */
-    fun verifyLoggedUser() {
+    fun isAuthenticationAvailable() {
         val token = mSharedPreference.get(TaskConstants.SHARED.TOKEN_KEY)
         val person = mSharedPreference.get(TaskConstants.SHARED.PERSON_KEY)
 
-        val logged = (token != "" && person != "")
+        val everLogged = (token != "" && person != "")
 
         RetrofitClient.addheader(token, person)
 
-        if (!logged) {
-            mPriorityRepository.all()
+        if (!everLogged) {
+            mPriorityRepository.all(object : APIListener<List<PriorityModel>> {
+                override fun onSuccess(model: List<PriorityModel>) {
+                    mPriorityRepository.save(model)
+                }
+
+                override fun onFailure(str: String) {
+                }
+            })
         }
 
-        mLoggedUser.value = logged
+        if (FingerPrintHelper.isAuthenticationAvailable(getApplication())) {
+            mFingerPrint.value = everLogged
+        }
     }
 }

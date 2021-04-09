@@ -1,15 +1,17 @@
 package com.example.tasks.view
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.Observer
+import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.tasks.R
 import com.example.tasks.viewmodel.LoginViewModel
 import kotlinx.android.synthetic.main.activity_login.*
+import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -22,11 +24,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         mViewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
         // Inicializa eventos
-        setListeners();
+        setListeners()
         observe()
 
-        // Verifica se usuário está logado
-        verifyLoggedUser()
+        mViewModel.isAuthenticationAvailable()
     }
 
     override fun onClick(v: View) {
@@ -35,6 +36,29 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         } else if (v.id == R.id.text_register) {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
+
+    private fun showAuthentication() {
+        val executor: Executor = ContextCompat.getMainExecutor(this)
+
+        val biometricPrompt =
+            BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+
+                    startActivity(Intent(applicationContext, MainActivity::class.java))
+                    finish()
+                }
+            })
+
+        val info: BiometricPrompt.PromptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Titulo")
+            .setSubtitle("Subtitulo")
+            .setDescription("Descrição")
+            .setNegativeButtonText("Cancelar")
+            .build()
+
+        biometricPrompt.authenticate(info)
     }
 
     /**
@@ -46,17 +70,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     /**
-     * Verifica se usuário está logado
-     */
-    private fun verifyLoggedUser() {
-        mViewModel.verifyLoggedUser()
-    }
-
-    /**
      * Observa ViewModel
      */
     private fun observe() {
-        mViewModel.login.observe(this, Observer {
+        mViewModel.login.observe(this, {
             if (it.success()) {
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
@@ -65,10 +82,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             }
         })
 
-        mViewModel.loggedUser.observe(this, Observer {
+        mViewModel.fingerPrint.observe(this, {
             if (it) {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                showAuthentication()
             }
         })
     }
